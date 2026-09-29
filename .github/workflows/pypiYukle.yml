@@ -16,22 +16,26 @@ jobs:
   PyPIYukleyici:
     runs-on: ubuntu-latest
 
-    steps:
-      - name : Depo Kontrolü
-        uses : actions/checkout@v6.0.2
+    # --- OIDC Güvenilir Yayınlama için Gerekli İzinler ---
+    permissions:
+      id-token: write  # PyPI OIDC token alabilmesi için zorunlu
+      contents: read   # Depo içeriğini okuyabilmesi için zorunlu
 
-      - name : UV Kurulumu
-        uses : astral-sh/setup-uv@v7.6.0
-        with :
+    steps:
+      - name: Depo Kontrolü
+        uses: actions/checkout@v4
+
+      - name: UV Kurulumu
+        uses: astral-sh/setup-uv@v5
+        with:
           enable-cache: true
 
-      - name : Python Kurulumu
-        run  : uv python install 3.14
+      - name: Python Kurulumu
+        run: uv python install 3.14
 
-      - name : Paketi Derle (Build)
-        run  : uv build
+      - name: Paketi Derle (Build)
+        run: uv build
 
-      - name : PyPI'ye Yükle
-        uses : pypa/gh-action-pypi-publish@release/v1
-        with :
-          password: ${{ secrets.PYPI_PASSWORD }}
+      - name: PyPI'ye Yükle
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Trusted Publishing kullandığınız için 'password' satırına gerek yoktur.
